@@ -34,5 +34,5 @@
 
 1️⃣ **Клонируй репозиторий:**
 ```bash
-git clone https://github.com/<твой_ник>/CinemaVaib.git
+git clone https://github.com/MrPranikof/CinemaVaib.git
 cd CinemaVaib

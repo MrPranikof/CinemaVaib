@@ -1,0 +1,203 @@
+/* ==========================
+   🎬  CinemaVaib — DARK THEME
+   Стиль: минимализм + конструктивизм
+   Шрифты: Oswald, Montserrat, Roboto, Open Sans
+   ========================== */
+
+/* ====== БАЗОВЫЕ НАСТРОЙКИ ====== */
+QWidget {
+    background-color: #0F1115;       /* чуть теплее, чем черный */
+    color: #EAEAEA;
+    font-family: 'Roboto', 'Open Sans', sans-serif;
+    font-size: 15px;
+}
+
+/* ====== ЗАГОЛОВКИ ====== */
+QLabel#TitleLabel {
+    font-family: 'Oswald';
+    font-size: 28px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: 1px;
+}
+
+QLabel#SectionLabel {
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 18px;
+    color: #DDDDDD;
+    border-bottom: 2px solid #00A8E8;
+    padding-bottom: 4px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+/* ====== ТЕКСТОВЫЕ ПОЛЯ ====== */
+QLineEdit {
+    background-color: #25272B;
+    border: 1px solid #35383D;
+    border-radius: 6px;
+    padding: 10px;
+    color: #EAEAEA;
+}
+QLineEdit:focus {
+    border-color: #00A8E8;
+}
+
+/* ====== КНОПКИ ====== */
+QPushButton {
+    background-color: #00A8E8;
+    color: #FFF;
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 6px;
+    padding: 10px;
+}
+QPushButton:hover { background-color: #03B7F5; }
+QPushButton:pressed { background-color: #0085C0; }
+
+/* Кнопка-глаз */
+QPushButton#PassToggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+QPushButton#PassToggle:hover {
+    background-color: rgba(255,255,255,0.08);
+    border-radius: 4px;
+}
+
+/* ====== ССЫЛКИ ====== */
+QLabel#LinkLabel {
+    color: #00A8E8;
+    font-size: 14px;
+}
+QLabel#LinkLabel:hover {
+    color: #03B7F5;
+}
+
+/* ====== TABLE / HEADER ====== */
+QTableWidget {
+    background-color: #1E1E1E;
+    border: 1px solid #2F2F2F;
+    gridline-color: #2F2F2F;
+    border-radius: 3px;
+    selection-background-color: #00A8E8;
+    selection-color: #FFFFFF;
+    font-family: 'Open Sans';
+}
+QHeaderView::section {
+    background-color: #2A2A2A;
+    font-family: 'Montserrat';
+    font-weight: 600;
+    font-size: 14px;
+    color: #EAEAEA;
+    border: none;
+    border-bottom: 1px solid #333;
+    padding: 6px;
+}
+
+/* ====== DIALOG / POPUP ====== */
+QDialog {
+    background-color: #181818;
+    border: 1px solid #00A8E8;
+    border-radius: 4px;
+}
+
+/* ====== SCROLLBAR ====== */
+QScrollBar:vertical {
+    background: #1C1C1C;
+    width: 8px;
+    margin: 2px;
+    border-radius: 4px;
+}
+QScrollBar::handle:vertical {
+    background: #434343;
+    border-radius: 4px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #00A8E8;
+}
+QScrollBar::add-line, QScrollBar::sub-line {
+    height: 0;
+}
+
+/* ====== STATUS COLORS ====== */
+QLabel#SuccessLabel {
+    color: #55C78C;
+    font-weight: 600;
+}
+QLabel#ErrorLabel {
+    color: #E63946;
+    font-weight: 600;
+}
+
+/* ====== HIGHLIGHTS / BORDER‑ELEMENTS ====== */
+QFrame#line {
+    background-color: #00A8E8;
+    max-height: 2px;
+}
+
+QFrame#FormContainer {
+    background-color: #1C1E22;
+    border-radius: 12px;
+    padding: 40px 32px 24px 32px;
+}
+
+QLabel {
+    background-color: transparent;
+}
+
+QLabel#BrandLabel {
+    font-family: 'Oswald', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #00CFFF;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+QLabel#BrandLabel:hover {
+    color: #00E0FF;
+}
+
+/* Header */
+QWidget#HeaderBar {
+    background-color: #16181C;
+    border-bottom: 1px solid #00A8E8;
+}
+QLabel#HeaderLogo { background: transparent; }
+QPushButton#HeaderButton {
+    background: transparent;
+    color: #EAEAEA;
+    font-family: 'Montserrat';
+    font-size: 14px;
+    border: 1px solid transparent;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+QPushButton#HeaderButton:hover {
+    border: 1px solid #00A8E8;
+    color: #00CFFF;
+}
+
+/* Content */
+QWidget#ContentArea {
+    background-color: #0F1115;
+}
+QLabel#MainLabel {
+    font-family: 'Oswald';
+    font-size: 22px;
+    color: #EAEAEA;
+}
+
+/* Footer */
+QWidget#FooterBar {
+    background-color: #16181C;
+    border-top: 1px solid #00A8E8;
+}
+QLabel#FooterText {
+    font-family: 'Open Sans';
+    font-size: 13px;
+    color: #7A7A7A;
+}

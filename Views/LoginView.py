@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QHBoxLayout, QFrame
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QHBoxLayout, QFrame, QCheckBox
+from PyQt6.QtCore import Qt, QSize, QSettings
 from PyQt6.QtGui import QIcon
 from ViewModels.LoginViewModel import LoginViewModel
 
@@ -38,6 +38,9 @@ class LoginView(QWidget):
         self.status = QLabel("")
         self.btn_login = QPushButton("Войти")
 
+        self.remember_checkbox = QCheckBox("Запомнить меня")
+        self.remember_checkbox.setObjectName("RememberCheckBox")
+
         self.link_register = QLabel('<a href="#">Нет аккаунта? Зарегистрируйтесь</a>')
         self.link_register.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.link_register.setOpenExternalLinks(False)
@@ -52,6 +55,7 @@ class LoginView(QWidget):
         form_layout.addLayout(pass_layout)
         form_layout.addWidget(self.status)
         form_layout.addWidget(self.btn_login)
+        form_layout.addWidget(self.remember_checkbox)
         form_layout.addWidget(self.link_register)
 
         layout.addWidget(self.brand_label)
@@ -67,6 +71,14 @@ class LoginView(QWidget):
         login = self.loginInput.text().strip()
         password = self.passwordInput.text().strip()
         self.vm.login(login, password)
+
+        if self.remember_checkbox.isChecked():
+            settings = QSettings("CinemaVaib", "UserConfig")
+            settings.setValue("remember_login", True)
+            settings.setValue("login", login)
+        else:
+            settings = QSettings("CinemaVaib", "UserConfig")
+            settings.clear()
 
     def on_login_success(self, login):
         self.status.setText(f"✅ Добро пожаловать, {login}")

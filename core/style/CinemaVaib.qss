@@ -201,3 +201,20 @@ QLabel#FooterText {
     font-size: 13px;
     color: #7A7A7A;
 }
+
+QCheckBox#RememberCheckBox {
+    color: #EAEAEA;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    background-color: transparent;
+}
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #00A8E8;
+    border-radius: 2px;
+    background: #1E1E1E;
+}
+QCheckBox::indicator:checked {
+    background-color: #00A8E8;
+}

@@ -1,8 +1,10 @@
 import sys
 
+from PyQt6.QtCore import QSettings
 from PyQt6.QtGui import QFontDatabase, QIcon
-from PyQt6.QtWidgets import QApplication, QStackedWidget
+from PyQt6.QtWidgets import QApplication, QStackedWidget, QWidget
 from Views.LoginView import LoginView
+from Views.ProfileView import ProfileView
 from Views.RegisterView import RegisterView
 from Views.MainView import MainView
 
@@ -22,7 +24,12 @@ class App(QStackedWidget):
         self.addWidget(self.register)
         self.addWidget(self.main)
 
-        self.show_login()
+        settings = QSettings("CinemaVaib", "UserConfig")
+        if settings.value("remember_login", False, type=bool):
+            login = settings.value("login", "")
+            self.show_main(login)
+        else:
+            self.show_login()
 
     def show_login(self):
         self.setCurrentWidget(self.login)

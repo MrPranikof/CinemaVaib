@@ -43,3 +43,24 @@ class UserModel:
         sql = "SELECT role_id FROM users WHERE login = %s;"
         rows = query(sql, [login])
         return rows[0][0] if rows else None
+
+    @staticmethod
+    def update_password(login: str, old_password: str, new_password: str) -> bool:
+        user = UserModel.find_by_login(login)
+        if user is None:
+            return False
+
+        stored_hash = user[2]
+
+        if not verify_password(stored_hash, old_password):
+            return False
+
+        new_hash = hash_password(new_password)
+        sql = """
+            UPDATE users
+            SET password_hash = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE login = %s;
+        """
+        query(sql, [new_hash, login])
+        return True

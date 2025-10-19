@@ -6,9 +6,10 @@ from Views.ProfileView import ProfileView
 
 
 class MainView(QWidget):
-    def __init__(self):
+    def __init__(self, go_login=None):
         super().__init__()
         self.vm = MainViewModel()
+        self.go_login = go_login
 
         # Header
         self.header = QWidget()
@@ -49,7 +50,7 @@ class MainView(QWidget):
         v_main.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_main.addWidget(QLabel("Главный контент 🍿"))
 
-        self.page_profile = ProfileView("TEST", self.show_main_page)
+        self.page_profile = ProfileView(go_back=self.show_main_page, go_login=self.go_login)
 
         self.page_admin = QWidget()
         v_admin = QVBoxLayout(self.page_admin)
@@ -66,7 +67,7 @@ class MainView(QWidget):
         h_footer.setContentsMargins(20, 8, 20, 8)
         h_footer.setSpacing(10)
 
-        self.footer_text = QLabel("© 2025 CinemaVaib — Все права защищены, v0.1.1")
+        self.footer_text = QLabel("© 2025 CinemaVaib — Все права защищены, v0.1.2")
         self.footer_text.setObjectName("FooterText")
         h_footer.addStretch()
         h_footer.addWidget(self.footer_text)

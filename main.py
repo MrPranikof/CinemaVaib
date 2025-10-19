@@ -2,12 +2,10 @@ import sys
 
 from PyQt6.QtCore import QSettings
 from PyQt6.QtGui import QFontDatabase, QIcon
-from PyQt6.QtWidgets import QApplication, QStackedWidget, QWidget
+from PyQt6.QtWidgets import QApplication, QStackedWidget
 from Views.LoginView import LoginView
-from Views.ProfileView import ProfileView
 from Views.RegisterView import RegisterView
 from Views.MainView import MainView
-
 
 class App(QStackedWidget):
     def __init__(self):
@@ -18,7 +16,7 @@ class App(QStackedWidget):
 
         self.login = LoginView(self.show_register, self.show_main)
         self.register = RegisterView(self.show_login)
-        self.main = MainView()
+        self.main = MainView(self.show_login)
 
         self.addWidget(self.login)
         self.addWidget(self.register)

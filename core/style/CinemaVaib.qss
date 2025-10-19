@@ -218,3 +218,67 @@ QCheckBox::indicator {
 QCheckBox::indicator:checked {
     background-color: #00A8E8;
 }
+
+/* ---------- PROFILE VIEW ---------- */
+#ProfileCard {
+    background-color: #1b1e24;
+    border: 1px solid #20242c;
+    border-radius: 12px;
+    padding: 30px;
+    min-width: 400px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+#ProfileTitle {
+    color: #00b4ff;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#ProfileInfo {
+    color: #cccccc;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+/* поля пароля */
+QLineEdit {
+    background-color: #23272f;
+    border: 1px solid #343a46;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+/* кнопки */
+QPushButton {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: bold;
+}
+
+#ChangePasswordButton {
+    background-color: #00aaff;
+    color: #ffffff;
+}
+#ChangePasswordButton:hover {
+    background-color: #00c3ff;
+}
+
+#LogoutButton {
+    background-color: #ff4444;
+    color: #ffffff;
+}
+#LogoutButton:hover {
+    background-color: #ff5555;
+}
+
+#BackButton {
+    background-color: #444c56;
+    color: #ffffff;
+}
+#BackButton:hover {
+    background-color: #58606a;
+}

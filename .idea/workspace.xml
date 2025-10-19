@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ecb8ec90-0bf4-4172-adc2-46c95969ace5" name="Changes" comment="CinemaVaib v. 0.1.1&#10;Реализован &quot;Запомнить меня&quot;:&#10;Запоминает вход пользователя." />
+    <list default="true" id="ecb8ec90-0bf4-4172-adc2-46c95969ace5" name="Changes" comment="CinemaVaib v. 0.1.1&#10;Реализован &quot;Запомнить меня&quot;:&#10;Запоминает вход пользователя.">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

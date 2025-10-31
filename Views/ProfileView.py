@@ -5,15 +5,25 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 from ViewModels.ProfileViewModel import ProfileViewModel
+from Models.UserModel import UserModel
 
 
 class ProfileView(QWidget):
-    def __init__(self, user_login=None, go_back=None, go_login=None):
+    def __init__(self, user_id, go_back=None, go_login=None):
         super().__init__()
         self.vm = ProfileViewModel()
         self.go_back = go_back
         self.go_login = go_login
-        self.user_login = user_login
+        self.user_id = user_id
+
+        # Загружаем АКТУАЛЬНЫЕ данные пользователя из БД
+        self.user_data = UserModel.get_user_data(user_id)
+
+        if not self.user_data:
+            QMessageBox.critical(self, "Ошибка", "Не удалось загрузить данные пользователя")
+            if go_back:
+                go_back()
+            return
 
         # --- Основное расположение ---
         main_layout = QVBoxLayout(self)
@@ -22,15 +32,22 @@ class ProfileView(QWidget):
         # --- Карточка профиля ---
         card = QGroupBox()
         card.setObjectName("ProfileCard")
-        card.setFixedSize(600, 400)
+        card.setFixedSize(600, 500)
         card_layout = QVBoxLayout(card)
-        card_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        card_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.label_title = QLabel("👤 Профиль пользователя")
         self.label_title.setObjectName("ProfileTitle")
 
-        self.label_user = QLabel("")
+        # Отображаем АКТУАЛЬНЫЕ данные
+        self.label_user = QLabel(
+            f"Логин: {self.user_data['login']}\n"
+            f"Email: {self.user_data['email']}\n"
+            f"Роль: {self.user_data['role_name']}\n"
+            f"Статус: {self.user_data['status']}"
+        )
         self.label_user.setObjectName("ProfileInfo")
+        self.label_user.setWordWrap(True)
 
         # --- Поля для смены пароля ---
         form = QFormLayout()
@@ -82,7 +99,6 @@ class ProfileView(QWidget):
         self.btn_back = QPushButton("⬅ Назад")
         self.btn_back.setObjectName("BackButton")
 
-        main_layout.addSpacing(10)
         main_layout.addWidget(self.btn_logout)
         main_layout.addWidget(self.btn_back)
 
@@ -93,28 +109,16 @@ class ProfileView(QWidget):
         if self.go_back:
             self.btn_back.clicked.connect(self.go_back)
 
-        self.vm.user_loaded.connect(self.set_user)
-
         # Изменение пароля
         self.btn_change_pass.clicked.connect(self.change_password)
         self.vm.password_changed.connect(self._on_password_changed)
         self.vm.password_failed.connect(self._on_password_failed)
 
-        # --- Инициализация ---
-        if user_login:
-            self.set_user(user_login)
-        else:
-            self.vm.load_user()
-
-    # --- Методы ---
-    def set_user(self, login):
-        self.user_login = login
-        self.label_user.setText(f"Логин: {login}")
-
     def change_password(self):
+        """Изменить пароль через user_id"""
         old_p = self.old_pass.text().strip()
         new_p = self.new_pass.text().strip()
-        self.vm.change_password(self.user_login, old_p, new_p)
+        self.vm.change_password(self.user_id, old_p, new_p)
 
     def _on_password_changed(self):
         QMessageBox.information(self, "Успешно", "Пароль успешно изменён!")
@@ -131,3 +135,11 @@ class ProfileView(QWidget):
         else:
             line_edit.setEchoMode(QLineEdit.EchoMode.Password)
             button.setIcon(QIcon("images/showPassword.png"))
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        try:
+            from core.animation import AnimationHelper
+            AnimationHelper.fade_in(self, 200)
+        except:
+            pass  # Если модуль анимаций не нужен - игнорируем

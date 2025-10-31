@@ -45,6 +45,7 @@ class RegisterView(QWidget):
 
         # Статус и кнопки
         self.status = QLabel("")
+        self.status.setWordWrap(True)
         self.btn_register = QPushButton("Зарегистрироваться")
 
         # Ссылка "Уже есть аккаунт?"
@@ -101,4 +102,13 @@ class RegisterView(QWidget):
 
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            self.try_login()
+            self.try_register()
+
+    def reset(self):
+        """Сброс формы регистрации"""
+        self.loginInput.clear()
+        self.emailInput.clear()
+        self.passwordInput.clear()
+        self.status.clear()
+        if self.show_pass_btn.isChecked():
+            self.toggle_password()

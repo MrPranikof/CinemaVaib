@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit
 from PyQt6.QtCore import Qt, QSize, QSettings
 from PyQt6.QtGui import QIcon
 from ViewModels.LoginViewModel import LoginViewModel
+from Models.UserModel import UserModel
+
 
 class LoginView(QWidget):
     def __init__(self, go_register, go_main):
@@ -34,8 +36,8 @@ class LoginView(QWidget):
         pass_layout.addWidget(self.passwordInput)
         pass_layout.addWidget(self.show_pass_btn)
 
-
         self.status = QLabel("")
+        self.status.setWordWrap(True)
         self.btn_login = QPushButton("Войти")
 
         self.remember_checkbox = QCheckBox("Запомнить меня")
@@ -63,7 +65,6 @@ class LoginView(QWidget):
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.btn_login.clicked.connect(self.try_login)
-
         self.vm.login_success.connect(self.on_login_success)
         self.vm.login_failed.connect(self.on_login_failed)
 
@@ -72,17 +73,22 @@ class LoginView(QWidget):
         password = self.passwordInput.text().strip()
         self.vm.login(login, password)
 
+    def on_login_success(self, user_id):
+        """Получаем user_id из сигнала"""
+        # Получаем актуальный логин из БД
+        user_data = UserModel.get_user_data(user_id)
+        if user_data:
+            self.status.setText(f"✅ Добро пожаловать, {user_data['login']}")
+
+        settings = QSettings("CinemaVaib", "UserConfig")
+
         if self.remember_checkbox.isChecked():
-            settings = QSettings("CinemaVaib", "UserConfig")
             settings.setValue("remember_login", True)
-            settings.setValue("login", login)
+            settings.setValue("user_id", user_id)  # Сохраняем ТОЛЬКО user_id
         else:
-            settings = QSettings("CinemaVaib", "UserConfig")
             settings.clear()
 
-    def on_login_success(self, login):
-        self.status.setText(f"✅ Добро пожаловать, {login}")
-        self.go_main(login)
+        self.go_main(user_id)  # Передаем user_id
 
     def on_login_failed(self, msg):
         self.status.setText(f"❌ {msg}")
@@ -98,3 +104,20 @@ class LoginView(QWidget):
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self.try_login()
+
+    def reset(self):
+        """Сбросить форму"""
+        self.loginInput.clear()
+        self.passwordInput.clear()
+        self.status.clear()
+        self.remember_checkbox.setChecked(False)
+        if self.show_pass_btn.isChecked():
+            self.toggle_password()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        try:
+            from core.animation import AnimationHelper
+            AnimationHelper.fade_in(self, 200)
+        except:
+            pass  # Если модуль анимаций не нужен - игнорируем

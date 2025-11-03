@@ -12,23 +12,22 @@ def query(sql, params=None):
                     return None
     except Exception as e:
         print(f"Ошибка: {e}")
+        return []
 
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
-
 def datagrid_model(sql, params=None):
     rows, headers = [], []
     try:
+        # Сначала выполняем основной запрос
         result = query(sql, params)
         if result is None or len(result) == 0:
-            return QStandardItemModel()  # Пуста таблица
+            return QStandardItemModel()  # Пустая таблица
 
-        rows_preview = query(sql + " LIMIT 0", params)
-        if rows_preview is not None:
-            import psycopg2
-            with psycopg2.connect("dbname=cinemavaib_db host=localhost port=5432 user=postgres") as conn:
-                with conn.cursor() as cur:
-                    cur.execute(sql + " LIMIT 0", params)
-                    headers = [desc[0] for desc in cur.description]
+        # Для получения заголовков выполняем запрос без LIMIT 0, а используем cursor.description
+        with psycopg2.connect("dbname=cinemavaib_db host=localhost port=5432 user=postgres") as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                headers = [desc[0] for desc in cur.description]
     except Exception as e:
         print(f"Ошибка datagrid_model(): {e}")
         return QStandardItemModel()

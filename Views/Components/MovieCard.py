@@ -21,7 +21,7 @@ class MovieCard(QFrame):
     def setup_ui(self):
         """Настройка интерфейса карточки"""
         self.setObjectName("MovieCard")
-        self.setFixedSize(220, 360)
+        self.setFixedSize(220, 350)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
         self.update_styles()

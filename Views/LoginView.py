@@ -120,4 +120,4 @@ class LoginView(QWidget):
             from core.animation import AnimationHelper
             AnimationHelper.fade_in(self, 200)
         except:
-            pass  # Если модуль анимаций не нужен - игнорируем
+            pass

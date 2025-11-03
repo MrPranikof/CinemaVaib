@@ -1,5 +1,7 @@
 import re
 from PyQt6.QtCore import QObject, pyqtSignal
+
+from Models.LogModel import LogModel
 from Models.UserModel import UserModel
 
 class RegisterViewModel(QObject):
@@ -36,5 +38,10 @@ class RegisterViewModel(QObject):
             return
 
         # Всё ок — создаём пользователя
-        UserModel.create_user(login, email, password)
-        self.register_success.emit(login)
+        user_id = UserModel.create_user(login, email, password)
+        if user_id:
+            LogModel.log_user_register(user_id, login)
+            self.register_success.emit(login)
+        else:
+            LogModel.log_error(None, "USER_REGISTER", "Ошибка создания пользователя")
+            self.register_failed.emit("Ошибка при создании пользователя")

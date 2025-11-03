@@ -5,7 +5,6 @@ from core.utils import hash_password, verify_password
 class UserModel:
     @staticmethod
     def find_by_id(user_id: int):
-        """Найти пользователя по ID"""
         sql = "SELECT * FROM users WHERE user_id = %s;"
         rows = query(sql, [user_id])
         return rows[0] if rows else None
@@ -124,3 +123,14 @@ class UserModel:
         sql = "SELECT role_id FROM users WHERE login = %s;"
         rows = query(sql, [login])
         return rows[0][0] if rows else None
+
+    @staticmethod
+    def get_user_role_name_by_id(user_id):
+        sql = """
+            SELECT r.role_name 
+            FROM users u
+            JOIN roles r ON u.role_id = r.role_id
+            WHERE u.user_id = %s
+        """
+        rows = query(sql, [user_id])
+        return rows[0][0] if rows else "Unknown"

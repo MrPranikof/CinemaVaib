@@ -94,9 +94,9 @@ CREATE TABLE watchlist (
 
 CREATE TABLE hall (
   hall_id SERIAL PRIMARY KEY,
-  hall_number INT NOT NULL,
-  hall_name VARCHAR(100),
-  hall_type VARCHAR(100),
+  hall_number INT UNIQUE NOT NULL,
+  hall_name VARCHAR(100) NOT NULL,
+  hall_type VARCHAR(100) NOT NULL,
   hall_extra_price DECIMAL(8, 2) DEFAULT 0.00 NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL

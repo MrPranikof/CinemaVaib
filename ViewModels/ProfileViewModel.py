@@ -1,4 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QSettings
+
+from Models.LogModel import LogModel
 from Models.UserModel import UserModel
 
 
@@ -12,6 +14,8 @@ class ProfileViewModel(QObject):
 
     def logout(self):
         """Выход из аккаунта"""
+        if hasattr(self, 'user_id') and self.user_id:
+            LogModel.log_user_logout(self.user_id)
         settings = QSettings("CinemaVaib", "UserConfig")
         settings.clear()
         self.logged_out.emit()
@@ -30,10 +34,11 @@ class ProfileViewModel(QObject):
             self.password_failed.emit("Новый пароль должен содержать минимум 6 символов")
             return
 
-        # Используем новый метод update_password_by_id
         success = UserModel.update_password_by_id(user_id, old_pass, new_pass)
 
         if success:
+            LogModel.log_password_change(user_id, True)
             self.password_changed.emit()
         else:
+            LogModel.log_password_change(user_id, False, "Неверный текущий пароль")
             self.password_failed.emit("Неверный текущий пароль")

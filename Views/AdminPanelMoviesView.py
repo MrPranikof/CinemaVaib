@@ -7,14 +7,17 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
+
+from Models.LogModel import LogModel
 from core.database import datagrid_model, query, image_to_binary
 from Models.MovieModel import MovieModel
 
 
 class AdminPanelMoviesView(QWidget):
-    def __init__(self, go_back=None):
+    def __init__(self, go_back=None, user_id=None):
         super().__init__()
         self.go_back = go_back
+        self.user_id = user_id
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 30, 40, 30)
@@ -140,6 +143,14 @@ class AdminPanelMoviesView(QWidget):
                 result = query(sql, (title, description, photo_binary, price))
                 movie_id = result[0][0]
 
+                LogModel.log_movie_action(
+                    self.user_id,
+                    "MOVIE_ADD",
+                    movie_id,
+                    title,
+                    is_admin=True
+                )
+
                 # Добавляем жанры
                 for genre_id in dialog.get_selected_genres():
                     query("INSERT INTO movie_genre (movie_id, genre_id) VALUES (%s, %s)",
@@ -223,9 +234,9 @@ class AdminPanelMoviesView(QWidget):
                 QMessageBox.critical(self, "Ошибка", str(e))
 
     def delete_movie(self):
+        """Удалить фильм"""
         movie = self.get_selected_movie()
         if not movie:
-            QMessageBox.warning(self, "Внимание", "Выберите фильм")
             return
 
         confirm = QMessageBox.question(
@@ -236,10 +247,21 @@ class AdminPanelMoviesView(QWidget):
 
         if confirm == QMessageBox.StandardButton.Yes:
             try:
+                # Логируем перед удалением
+                LogModel.log_movie_action(
+                    self.user_id,
+                    "MOVIE_DELETE",
+                    movie['movie_id'],
+                    movie['title'],
+                    is_admin=True
+                )
+
                 query("DELETE FROM movies WHERE movie_id = %s", (movie['movie_id'],))
                 QMessageBox.information(self, "Успех", "Фильм удалён")
                 self.refresh_table()
+
             except Exception as e:
+                LogModel.log_error(self.user_id, "MOVIE_DELETE", str(e), movie['movie_id'])
                 QMessageBox.critical(self, "Ошибка", str(e))
 
 
@@ -617,3 +639,39 @@ class MovieDialog(QDialog):
         except Exception as e:
             print(f"Ошибка загрузки данных фильма: {e}")
             QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить данные фильма:\n{e}")
+
+    def check_duplicate_actors(self):
+        """Проверить наличие дубликатов актёров"""
+        actor_ids = []
+        duplicates = []
+
+        for row in range(self.actors_table.rowCount()):
+            actor_combo = self.actors_table.cellWidget(row, 0)
+            if actor_combo:
+                actor_id = actor_combo.currentData()
+                actor_name = actor_combo.currentText()
+
+                if actor_id in actor_ids:
+                    duplicates.append(actor_name)
+                else:
+                    actor_ids.append(actor_id)
+
+        return duplicates
+
+    def accept(self):
+        """Валидация перед сохранением"""
+        # Проверка на дубликаты актёров
+        duplicates = self.check_duplicate_actors()
+        if duplicates:
+            QMessageBox.warning(
+                self,
+                "⚠️ Дубликаты актёров",
+                f"Следующие актёры добавлены несколько раз:\n\n"
+                f"• {chr(10).join(set(duplicates))}\n\n"
+                f"Один актёр не может играть несколько ролей в одном фильме.\n"
+                f"Удалите дубликаты перед сохранением."
+            )
+            return  # Не закрываем диалог
+
+        # Если всё ок - вызываем стандартный accept
+        super().accept()

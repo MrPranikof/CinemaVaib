@@ -39,6 +39,14 @@ class MainView(QWidget):
         self.logo_label.setObjectName("HeaderLogo")
         self.logo_label.mousePressEvent = self.show_main_page
 
+        self.btn_watchlist = QPushButton("❤️\nИзбранное")
+        self.btn_watchlist.setObjectName("HeaderButton")
+        self.btn_watchlist.clicked.connect(self.show_watchlist_page)
+
+        self.btn_tickets = QPushButton("🎟️\nМои билеты")
+        self.btn_tickets.setObjectName("HeaderButton")
+        self.btn_tickets.clicked.connect(self.show_my_tickets)
+
         self.btn_profile = QPushButton("👨‍💼\nПрофиль")
         self.btn_profile.setObjectName("HeaderButton")
         self.btn_profile.clicked.connect(self.show_profile_page)
@@ -50,6 +58,8 @@ class MainView(QWidget):
 
         h_header.addWidget(self.logo_label)
         h_header.addStretch()
+        h_header.addWidget(self.btn_watchlist)
+        h_header.addWidget(self.btn_tickets)
         h_header.addWidget(self.btn_profile)
         h_header.addWidget(self.adminBtn)
 
@@ -66,6 +76,11 @@ class MainView(QWidget):
         self.page_admin_panel_directors = None
         self.page_admin_panel_movies = None
         self.page_admin_panel_genres = None
+        self.page_admin_panel_halls = None
+        self.page_admin_panel_sessions = None
+        self.page_movie_detail = None
+        self.page_admin_panel_tickets = None
+        self.page_admin_panel_logs = None
 
         # Footer
         self.footer = QWidget()
@@ -113,7 +128,6 @@ class MainView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Сетка фильмов
         self.movie_grid = MovieGridView()
         self.movie_grid.movie_clicked.connect(self.show_movie_detail)
         main_layout.addWidget(self.movie_grid)
@@ -121,26 +135,32 @@ class MainView(QWidget):
         return page
 
     def show_main_page(self, event=None):
-        if self.page_main is not None:
-            self.stack.removeWidget(self.page_main)
-            self.page_main.deleteLater()
+        """Показать главную страницу - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
+        try:
+            if self.page_main is not None:
+                self.stack.removeWidget(self.page_main)
+                self.page_main.deleteLater()
 
-        # Обновляем кэшированные данные пользователя
-        self.user_data = UserModel.get_user_data(self.user_id)
+            # Обновляем кэшированные данные пользователя
+            self.user_data = UserModel.get_user_data(self.user_id)
 
-        if not self.user_data:
-            QMessageBox.critical(self, "Ошибка", "Пользователь был удален из базы данных")
-            if self.go_login:
-                self.go_login()
-            return
+            if not self.user_data:
+                QMessageBox.critical(self, "Ошибка", "Пользователь был удален из базы данных")
+                if self.go_login:
+                    self.go_login()
+                return
 
-        # Обновляем видимость кнопки админки (роль могла измениться)
-        self.adminBtn.setVisible(self.user_data['role_id'] == 2)
+            # Обновляем видимость кнопки админки (роль могла измениться)
+            self.adminBtn.setVisible(self.user_data['role_id'] == 2)
 
-        # Создаем страницу
-        self.page_main = self._create_main_page()
-        self.stack.addWidget(self.page_main)
-        self.stack.setCurrentWidget(self.page_main)
+            # Создаем страницу
+            self.page_main = self._create_main_page()
+            self.stack.addWidget(self.page_main)
+            self.stack.setCurrentWidget(self.page_main)
+
+        except Exception as e:
+            print(f"Ошибка при показе главной страницы: {e}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить главную страницу: {str(e)}")
 
     def show_profile_page(self):
         """Показать профиль с АКТУАЛЬНЫМИ данными из БД"""
@@ -167,7 +187,6 @@ class MainView(QWidget):
         self.stack.setCurrentWidget(self.page_profile)
 
     def show_admin_page(self):
-        """Показать админ-панель"""
         self.user_data = UserModel.get_user_data(self.user_id)
 
         if not self.user_data or self.user_data['role_id'] != 2:
@@ -184,7 +203,13 @@ class MainView(QWidget):
             go_to_actors=self.show_panel_actors,
             go_to_directors=self.show_panel_directors,
             go_to_movies=self.show_panel_movies,
-            go_to_genres = self.show_panel_genres
+            go_to_genres = self.show_panel_genres,
+            go_to_halls = self.show_panel_halls,
+            go_to_sessions = self.show_panel_sessions,
+            go_to_tickets = self.show_panel_tickets,
+            go_to_logs = self.show_panel_logs,
+            go_to_reviews=self.show_panel_reviews,
+            go_to_reports=self.show_panel_reports
         )
         self.stack.addWidget(self.page_admin_panel)
         self.stack.setCurrentWidget(self.page_admin_panel)
@@ -201,13 +226,6 @@ class MainView(QWidget):
         )
         self.stack.addWidget(self.page_admin_panel_users)
         self.stack.setCurrentWidget(self.page_admin_panel_users)
-
-    def show_movie_detail(self, movie_id):
-        QMessageBox.information(
-            self,
-            "Фильм",
-            f"Вы выбрали фильм с ID: {movie_id}\n\nДетальная страница в разработке"
-        )
 
     def show_panel_actors(self):
         """Показать управление актёрами"""
@@ -256,3 +274,171 @@ class MainView(QWidget):
         self.page_admin_panel_genres = AdminPanelGenresView(go_back=self.show_admin_page)
         self.stack.addWidget(self.page_admin_panel_genres)
         self.stack.setCurrentWidget(self.page_admin_panel_genres)
+
+    def show_movie_detail(self, movie_id):
+        """Показать детальную страницу фильма"""
+        if self.page_movie_detail is not None:
+            self.stack.removeWidget(self.page_movie_detail)
+            self.page_movie_detail.deleteLater()
+
+        from Views.MovieDetailView import MovieDetailView
+        self.page_movie_detail = MovieDetailView(movie_id, self.user_id)
+        self.page_movie_detail.go_back.connect(self.show_main_page)
+        self.page_movie_detail.show_seat_selection.connect(self.show_seat_selection)
+
+        self.stack.addWidget(self.page_movie_detail)
+        self.stack.setCurrentWidget(self.page_movie_detail)
+
+    def show_seat_selection(self, session_id, movie_title, session_time):
+        """Показать выбор мест (заглушка)"""
+        QMessageBox.information(
+            self,
+            "Выбор мест",
+            f"🎫 Бронирование билетов\n\n"
+            f"Фильм: {movie_title}\n"
+            f"Сеанс: {session_time}\n"
+            f"ID сеанса: {session_id}\n\n"
+            f"Функционал выбора мест будет реализован в следующем этапе"
+        )
+
+    def show_panel_halls(self):
+        """Показать управление залами"""
+        from Views.AdminPanelHallsView import AdminPanelHallsView
+
+        if self.page_admin_panel_halls is not None:
+            self.stack.removeWidget(self.page_admin_panel_halls)
+            self.page_admin_panel_halls.deleteLater()
+
+        self.page_admin_panel_halls = AdminPanelHallsView(go_back=self.show_admin_page)
+        self.stack.addWidget(self.page_admin_panel_halls)
+        self.stack.setCurrentWidget(self.page_admin_panel_halls)
+
+    def show_panel_sessions(self):
+        """Показать управление сеансами"""
+        from Views.AdminPanelSessionsView import AdminPanelSessionsView
+
+        if self.page_admin_panel_sessions is not None:
+            self.stack.removeWidget(self.page_admin_panel_sessions)
+            self.page_admin_panel_sessions.deleteLater()
+
+        self.page_admin_panel_sessions = AdminPanelSessionsView(go_back=self.show_admin_page)
+        self.stack.addWidget(self.page_admin_panel_sessions)
+        self.stack.setCurrentWidget(self.page_admin_panel_sessions)
+
+    def show_watchlist_page(self):
+        """Показать страницу избранного"""
+        # Обновляем данные перед переходом
+        self.user_data = UserModel.get_user_data(self.user_id)
+
+        if not self.user_data:
+            QMessageBox.critical(self, "Ошибка", "Пользователь был удален из базы данных")
+            if self.go_login:
+                self.go_login()
+            return
+
+        # Пересоздаем страницу избранного для свежих данных
+        if hasattr(self, 'page_watchlist') and self.page_watchlist is not None:
+            try:
+                self.stack.removeWidget(self.page_watchlist)
+                self.page_watchlist.deleteLater()
+            except:
+                pass
+
+        from Views.WatchlistView import WatchlistView
+        self.page_watchlist = WatchlistView(
+            user_id=self.user_id,
+            go_back=self.show_main_page
+        )
+        self.page_watchlist.movie_clicked.connect(self.show_movie_detail)
+
+        self.stack.addWidget(self.page_watchlist)
+        self.stack.setCurrentWidget(self.page_watchlist)
+
+    def show_my_tickets(self):
+        """Показать мои билеты"""
+        try:
+            from Views.MyTicketsView import MyTicketsView
+
+            if hasattr(self, 'page_my_tickets') and self.page_my_tickets is not None:
+                try:
+                    self.stack.removeWidget(self.page_my_tickets)
+                    self.page_my_tickets.deleteLater()
+                    self.page_my_tickets = None
+                except Exception as e:
+                    print(f"Ошибка при удалении старого виджета билетов: {e}")
+
+            # Создаем новый виджет
+            self.page_my_tickets = MyTicketsView(self.user_id, go_back=self.show_main_page)
+            self.stack.addWidget(self.page_my_tickets)
+            self.stack.setCurrentWidget(self.page_my_tickets)
+
+        except Exception as e:
+            print(f"Ошибка при создании виджета билетов: {e}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось загрузить билеты: {str(e)}")
+
+    def show_panel_tickets(self):
+        """Показать управление билетами"""
+        try:
+            if hasattr(self, 'page_admin_panel_tickets'):
+                if self.page_admin_panel_tickets is not None:
+                    try:
+                        self.stack.removeWidget(self.page_admin_panel_tickets)
+                        self.page_admin_panel_tickets.deleteLater()
+                        self.page_admin_panel_tickets = None
+                    except:
+                        pass
+
+            from Views.AdminPanelTicketsView import AdminPanelTicketsView
+
+            self.page_admin_panel_tickets = AdminPanelTicketsView(
+                user_id=self.user_id,
+                go_back=self.show_admin_page
+            )
+            self.stack.addWidget(self.page_admin_panel_tickets)
+            self.stack.setCurrentWidget(self.page_admin_panel_tickets)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось открыть управление билетами: {str(e)}")
+
+    def show_panel_logs(self):
+        from Views.AdminPanelLogsView import AdminPanelLogsView
+
+        if self.page_admin_panel_logs is not None:
+            self.stack.removeWidget(self.page_admin_panel_logs)
+            self.page_admin_panel_logs.deleteLater()
+
+        self.page_admin_panel_logs = AdminPanelLogsView(
+            user_id=self.user_id,
+            go_back=self.show_admin_page
+        )
+        self.stack.addWidget(self.page_admin_panel_logs)
+        self.stack.setCurrentWidget(self.page_admin_panel_logs)
+
+    def show_panel_reviews(self):
+        """Показать управление отзывами"""
+        from Views.AdminPanelReviewsView import AdminPanelReviewsView
+
+        if hasattr(self, 'page_admin_panel_reviews') and self.page_admin_panel_reviews is not None:
+            self.stack.removeWidget(self.page_admin_panel_reviews)
+            self.page_admin_panel_reviews.deleteLater()
+
+        self.page_admin_panel_reviews = AdminPanelReviewsView(
+            user_id=self.user_id,
+            go_back=self.show_admin_page
+        )
+        self.stack.addWidget(self.page_admin_panel_reviews)
+        self.stack.setCurrentWidget(self.page_admin_panel_reviews)
+
+    def show_panel_reports(self):
+        from Views.AdminPanelReportsView import AdminPanelReportsView
+
+        if hasattr(self, 'page_admin_panel_reports') and self.page_admin_panel_reports is not None:
+            self.stack.removeWidget(self.page_admin_panel_reports)
+            self.page_admin_panel_reports.deleteLater()
+
+        self.page_admin_panel_reports = AdminPanelReportsView(
+            user_id=self.user_id,
+            go_back=self.show_admin_page
+        )
+        self.stack.addWidget(self.page_admin_panel_reports)
+        self.stack.setCurrentWidget(self.page_admin_panel_reports)

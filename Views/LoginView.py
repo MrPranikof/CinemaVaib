@@ -74,8 +74,6 @@ class LoginView(QWidget):
         self.vm.login(login, password)
 
     def on_login_success(self, user_id):
-        """Получаем user_id из сигнала"""
-        # Получаем актуальный логин из БД
         user_data = UserModel.get_user_data(user_id)
         if user_data:
             self.status.setText(f"✅ Добро пожаловать, {user_data['login']}")
@@ -88,7 +86,7 @@ class LoginView(QWidget):
         else:
             settings.clear()
 
-        self.go_main(user_id)  # Передаем user_id
+        self.go_main(user_id)
 
     def on_login_failed(self, msg):
         self.status.setText(f"❌ {msg}")
@@ -104,15 +102,6 @@ class LoginView(QWidget):
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self.try_login()
-
-    def reset(self):
-        """Сбросить форму"""
-        self.loginInput.clear()
-        self.passwordInput.clear()
-        self.status.clear()
-        self.remember_checkbox.setChecked(False)
-        if self.show_pass_btn.isChecked():
-            self.toggle_password()
 
     def showEvent(self, event):
         super().showEvent(event)

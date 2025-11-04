@@ -84,13 +84,14 @@ class TicketModel:
 
     @staticmethod
     def get_ticket_by_id(ticket_id):
-        """Получить билет по ID - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
+        """Получить билет по ID с номером зала"""
         try:
             sql = """
                 SELECT 
                     t.ticket_id, 
                     m.title, 
-                    h.hall_name, 
+                    h.hall_name,
+                    h.hall_number,
                     s.session_time,
                     st.row_number, 
                     st.seat_number, 
@@ -100,7 +101,7 @@ class TicketModel:
                     m.movie_image, 
                     s.session_id, 
                     m.movie_id,
-                    t.user_id  -- ДОБАВЛЕНО: user_id для логирования
+                    t.user_id
                 FROM ticket t
                 JOIN session s ON t.session_id = s.session_id
                 JOIN movies m ON s.movie_id = m.movie_id

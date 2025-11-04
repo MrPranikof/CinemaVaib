@@ -10,8 +10,6 @@ from PyQt6.QtGui import QPixmap
 
 from Models.LogModel import LogModel
 from core.database import datagrid_model, query, image_to_binary
-from Models.MovieModel import MovieModel
-
 
 class AdminPanelMoviesView(QWidget):
     def __init__(self, go_back=None, user_id=None):

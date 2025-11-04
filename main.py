@@ -62,10 +62,7 @@ class App(QStackedWidget):
         self.setCurrentWidget(self.register)
 
     def show_main(self, user_id):
-        """Показать главную страницу с актуальными данными пользователя"""
         self.current_user_id = user_id
-
-        # ВСЕГДА пересоздаем main view для свежих данных из БД
         if self.main is not None:
             self.removeWidget(self.main)
             self.main.deleteLater()

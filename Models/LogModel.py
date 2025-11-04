@@ -1,9 +1,5 @@
 from Models.UserModel import UserModel
 from core.database import query
-from datetime import datetime
-import traceback
-import sys
-from PyQt6.QtNetwork import QHostInfo
 
 
 class LogModel:
@@ -11,18 +7,6 @@ class LogModel:
     @staticmethod
     def log_action(user_id, actor_role, action_type, entity_id, description,
                    action_result="SUCCESS", error_message=None):
-        """
-        Логирование действия в БД
-
-        Args:
-            user_id: ID пользователя (может быть None для системных действий)
-            actor_role: Роль исполнителя ('User', 'Admin', 'System')
-            action_type: Тип действия
-            entity_id: ID связанной сущности (опционально)
-            description: Описание действия
-            action_result: Результат ('SUCCESS', 'FAILED')
-            error_message: Сообщение об ошибке (если есть)
-        """
         try:
             sql = """
                 INSERT INTO activity_log 
@@ -240,3 +224,28 @@ class LogModel:
         sql = "DELETE FROM activity_log WHERE timestamp < CURRENT_DATE - INTERVAL '%s days'"
         query(sql, [days_to_keep])
         return True
+
+    @staticmethod
+    def log_pdf_generation(user_id, ticket_ids, success=True, error_msg=None):
+        action_type = "PDF_GENERATION"
+        result = "SUCCESS" if success else "FAILED"
+
+        if isinstance(ticket_ids, list):
+            tickets_text = f"{len(ticket_ids)} билетов"
+        else:
+            tickets_text = f"билета #{ticket_ids}"
+
+        description = f"Генерация PDF для {tickets_text}"
+
+        if not success:
+            description += f" - Ошибка: {error_msg}"
+
+        return LogModel.log_action(
+            user_id,
+            "User",
+            action_type,
+            ticket_ids[0] if isinstance(ticket_ids, list) and ticket_ids else ticket_ids,
+            description,
+            result,
+            error_msg
+        )

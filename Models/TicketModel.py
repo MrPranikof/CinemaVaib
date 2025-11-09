@@ -3,14 +3,14 @@ from core.database import query
 
 class TicketModel:
     @staticmethod
-    def create_ticket(session_id, user_id, seat_id, discount_percent=0):
+    def create_ticket(session_id, user_id, seat_id):
         """Создать билет"""
         sql = """
-            INSERT INTO ticket (session_id, user_id, seat_id, percent_discount)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO ticket (session_id, user_id, seat_id)
+            VALUES (%s, %s, %s)
             RETURNING ticket_id
         """
-        result = query(sql, [session_id, user_id, seat_id, discount_percent])
+        result = query(sql, [session_id, user_id, seat_id])
 
         if result:
             ticket_id = result[0][0]
@@ -25,7 +25,7 @@ class TicketModel:
         sql = """
             SELECT t.ticket_id, m.title, h.hall_name, s.session_time,
                    st.row_number, st.seat_number, t.final_price,
-                   t.purchase_date, t.final_price_discount
+                   t.purchase_date, t.final_price
             FROM ticket t
             JOIN session s ON t.session_id = s.session_id
             JOIN movies m ON s.movie_id = m.movie_id
@@ -88,18 +88,17 @@ class TicketModel:
         try:
             sql = """
                 SELECT 
-                    t.ticket_id, 
-                    m.title, 
+                    t.ticket_id,
+                    m.title,
                     h.hall_name,
                     h.hall_number,
                     s.session_time,
-                    st.row_number, 
-                    st.seat_number, 
+                    st.row_number,
+                    st.seat_number,
                     t.final_price,
-                    t.final_price_discount, 
                     t.purchase_date,
-                    m.movie_image, 
-                    s.session_id, 
+                    m.movie_image,
+                    s.session_id,
                     m.movie_id,
                     t.user_id
                 FROM ticket t

@@ -83,7 +83,7 @@ class AdminPanelActorsView(QWidget):
     def refresh_table(self):
         """Обновить таблицу актёров"""
         self.model = datagrid_model(
-            "SELECT actor_id, fullname, created_at, updated_at FROM actor ORDER BY fullname"
+            "SELECT actor_id, name, lastname, created_at, updated_at FROM actor ORDER BY name, lastname"
         )
 
         if hasattr(self, 'view'):
@@ -100,8 +100,8 @@ class AdminPanelActorsView(QWidget):
         """Поиск актёров"""
         if len(text.strip()) >= 2:
             self.model = datagrid_model(
-                "SELECT actor_id, fullname, created_at, updated_at FROM actor WHERE fullname ILIKE %s ORDER BY fullname",
-                (f"%{text.strip()}%",)
+                "SELECT actor_id, name, lastname, created_at, updated_at FROM actor WHERE name ILIKE %s OR lastname ILIKE %s ORDER BY name, lastname",
+                (f"%{text.strip()}%", f"%{text.strip()}%")
             )
             self.view.setModel(self.model)
         elif len(text.strip()) == 0:
@@ -115,19 +115,21 @@ class AdminPanelActorsView(QWidget):
 
         row = selection[0].row()
         actor_id = self.model.item(row, 0).text()
-        fullname = self.model.item(row, 1).text()
+        name = self.model.item(row, 1).text()
+        lastname = self.model.item(row, 2).text()
 
-        return {'actor_id': actor_id, 'fullname': fullname}
+        return {'actor_id': actor_id, 'name': name, 'lastname': lastname}
 
     def add_actor(self):
         """Добавить актёра"""
         dialog = ActorDialog(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            fullname = dialog.fullname_input.text().strip()
+            name = dialog.name_input.text().strip()
+            lastname = dialog.lastname_input.text().strip()
             photo_path = dialog.photo_path
 
-            if not fullname:
-                QMessageBox.warning(self, "Ошибка", "Введите имя актёра")
+            if not name or not lastname:
+                QMessageBox.warning(self, "Ошибка", "Введите имя и фамилию актёра")
                 return
 
             if not photo_path:
@@ -135,8 +137,8 @@ class AdminPanelActorsView(QWidget):
                 return
 
             try:
-                ActorModel.create_actor(fullname, photo_path)
-                QMessageBox.information(self, "Успех", f"Актёр '{fullname}' добавлен")
+                ActorModel.create_actor(name, lastname, photo_path)
+                QMessageBox.information(self, "Успех", f"Актёр '{name} {lastname}' добавлен")
                 self.refresh_table()
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Не удалось добавить актёра:\n{e}")
@@ -148,18 +150,19 @@ class AdminPanelActorsView(QWidget):
             QMessageBox.warning(self, "Внимание", "Выберите актёра из таблицы")
             return
 
-        dialog = ActorDialog(self, actor['fullname'])
+        dialog = ActorDialog(self, actor['name'], actor['lastname'])
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            fullname = dialog.fullname_input.text().strip()
+            name = dialog.name_input.text().strip()
+            lastname = dialog.lastname_input.text().strip()
             photo_path = dialog.photo_path
 
-            if not fullname:
-                QMessageBox.warning(self, "Ошибка", "Введите имя актёра")
+            if not name or not lastname:
+                QMessageBox.warning(self, "Ошибка", "Введите имя и фамилию актёра")
                 return
 
             try:
-                ActorModel.update_actor(actor['actor_id'], fullname, photo_path)
-                QMessageBox.information(self, "Успех", f"Актёр '{fullname}' обновлён")
+                ActorModel.update_actor(actor['actor_id'], name, lastname, photo_path)
+                QMessageBox.information(self, "Успех", f"Актёр '{name} {lastname}' обновлён")
                 self.refresh_table()
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Не удалось обновить актёра:\n{e}")
@@ -174,7 +177,7 @@ class AdminPanelActorsView(QWidget):
         confirm = QMessageBox.question(
             self,
             "Подтверждение",
-            f"Удалить актёра '<b>{actor['fullname']}</b>'?<br><br>"
+            f"Удалить актёра '<b>{actor['name']} {actor['lastname']}</b>'?<br><br>"
             f"⚠️ <b>Это действие необратимо!</b>",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
@@ -182,7 +185,7 @@ class AdminPanelActorsView(QWidget):
         if confirm == QMessageBox.StandardButton.Yes:
             try:
                 ActorModel.delete_actor(actor['actor_id'])
-                QMessageBox.information(self, "Успех", f"Актёр '{actor['fullname']}' удалён")
+                QMessageBox.information(self, "Успех", f"Актёр '{actor['name']} {actor['lastname']}' удалён")
                 self.refresh_table()
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"Не удалось удалить актёра:\n{e}")
@@ -191,7 +194,7 @@ class AdminPanelActorsView(QWidget):
 class ActorDialog(QDialog):
     """Диалог добавления/редактирования актёра"""
 
-    def __init__(self, parent=None, fullname=""):
+    def __init__(self, parent=None, name="", lastname=""):
         super().__init__(parent)
         self.photo_path = None
         self.setWindowTitle("Актёр")
@@ -199,9 +202,13 @@ class ActorDialog(QDialog):
 
         layout = QFormLayout(self)
 
-        self.fullname_input = QLineEdit(fullname)
-        self.fullname_input.setPlaceholderText("Введите полное имя")
-        layout.addRow("ФИО:", self.fullname_input)
+        self.name_input = QLineEdit(name)
+        self.name_input.setPlaceholderText("Введите имя")
+        layout.addRow("Имя:", self.name_input)
+
+        self.lastname_input = QLineEdit(lastname)
+        self.lastname_input.setPlaceholderText("Введите фамилию")
+        layout.addRow("Фамилия:", self.lastname_input)
 
         # Кнопка выбора фото
         photo_layout = QHBoxLayout()

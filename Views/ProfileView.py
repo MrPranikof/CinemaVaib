@@ -16,7 +16,6 @@ class ProfileView(QWidget):
         self.go_login = go_login
         self.user_id = user_id
 
-        # Загружаем АКТУАЛЬНЫЕ данные пользователя из БД
         self.user_data = UserModel.get_user_data(user_id)
 
         if not self.user_data:
@@ -25,21 +24,18 @@ class ProfileView(QWidget):
                 go_back()
             return
 
-        # --- Основное расположение ---
         main_layout = QVBoxLayout(self)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # --- Карточка профиля ---
         card = QGroupBox()
         card.setObjectName("ProfileCard")
-        card.setFixedSize(600, 500)
+        card.setMaximumSize(600, 400)
         card_layout = QVBoxLayout(card)
         card_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.label_title = QLabel("👤 Профиль пользователя")
         self.label_title.setObjectName("ProfileTitle")
 
-        # Отображаем АКТУАЛЬНЫЕ данные
         self.label_user = QLabel(
             f"Логин: {self.user_data['login']}\n"
             f"Email: {self.user_data['email']}\n"
@@ -142,4 +138,4 @@ class ProfileView(QWidget):
             from core.animation import AnimationHelper
             AnimationHelper.fade_in(self, 200)
         except:
-            pass  # Если модуль анимаций не нужен - игнорируем
+            pass

@@ -14,16 +14,15 @@ def query(sql, params=None):
         print(f"Ошибка: {e}")
         return []
 
-from PyQt6.QtGui import QStandardItem, QStandardItemModel
+from PyQt6.QtGui import QStandardItem, QStandardItemModel, QPixmap
+
 def datagrid_model(sql, params=None):
     rows, headers = [], []
     try:
-        # Сначала выполняем основной запрос
         result = query(sql, params)
         if result is None or len(result) == 0:
             return QStandardItemModel()  # Пустая таблица
 
-        # Для получения заголовков выполняем запрос без LIMIT 0, а используем cursor.description
         with psycopg2.connect("dbname=cinemavaib_db host=localhost port=5432 user=postgres") as conn:
             with conn.cursor() as cur:
                 cur.execute(sql, params)
@@ -48,7 +47,15 @@ def image_to_binary(image):
     return psycopg2.Binary(open(image, "rb").read())
 
 def get_image_from_db(movie_id):
-    result = query("SELECT movie_image FROM movies WHERE movie_id = %s", (movie_id,))
-    if result and len(result) > 0 and result[0][0] is not None:
-        return bytes(result[0][0])
-    return None
+    try:
+        result = query("SELECT movie_image FROM movies WHERE movie_id = %s", (movie_id,))
+        if result and result[0][0] is not None:
+            image_data = bytes(result[0][0])
+            # Проверка валидности изображения
+            pixmap = QPixmap()
+            if pixmap.loadFromData(image_data):
+                return image_data
+        return None
+    except Exception as e:
+        print(f"Ошибка загрузки изображения: {e}")
+        return None

@@ -6,7 +6,7 @@ class ActorModel:
     def get_all_actors():
         """Получить всех актёров"""
         sql = """
-            SELECT actor_id, fullname, photo, created_at, updated_at
+            SELECT actor_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM actor
             ORDER BY fullname
         """
@@ -17,7 +17,7 @@ class ActorModel:
     def get_actor_by_id(actor_id):
         """Получить актёра по ID"""
         sql = """
-            SELECT actor_id, fullname, photo, created_at, updated_at
+            SELECT actor_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM actor
             WHERE actor_id = %s
         """
@@ -25,35 +25,35 @@ class ActorModel:
         return rows[0] if rows else None
 
     @staticmethod
-    def create_actor(fullname, photo_path):
+    def create_actor(name, lastname, photo_path):
         """Создать нового актёра"""
         sql = """
-            INSERT INTO actor (fullname, photo)
-            VALUES (%s, %s)
+            INSERT INTO actor (name, lastname, photo)
+            VALUES (%s, %s, %s)
             RETURNING actor_id
         """
         photo_binary = image_to_binary(photo_path)
-        result = query(sql, [fullname, photo_binary])
+        result = query(sql, [name, lastname, photo_binary])
         return result[0][0] if result else None
 
     @staticmethod
-    def update_actor(actor_id, fullname, photo_path=None):
+    def update_actor(actor_id, name, lastname, photo_path=None):
         """Обновить данные актёра"""
         if photo_path:
             photo_binary = image_to_binary(photo_path)
             sql = """
                 UPDATE actor
-                SET fullname = %s, photo = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, lastname = %s, photo = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE actor_id = %s
             """
-            query(sql, [fullname, photo_binary, actor_id])
+            query(sql, [name, lastname, photo_binary, actor_id])
         else:
             sql = """
                 UPDATE actor
-                SET fullname = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, lastname = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE actor_id = %s
             """
-            query(sql, [fullname, actor_id])
+            query(sql, [name, lastname, actor_id])
         return True
 
     @staticmethod
@@ -67,9 +67,9 @@ class ActorModel:
     def search_actors(search_text):
         """Поиск актёров по имени"""
         sql = """
-            SELECT actor_id, fullname, photo, created_at, updated_at
+            SELECT actor_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM actor
-            WHERE fullname ILIKE %s
+            WHERE (name || ' ' || lastname) ILIKE %s
             ORDER BY fullname
         """
         pattern = f"%{search_text}%"

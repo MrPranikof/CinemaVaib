@@ -6,7 +6,7 @@ class DirectorModel:
     def get_all_directors():
         """Получить всех режиссёров"""
         sql = """
-            SELECT director_id, fullname, photo, created_at, updated_at
+            SELECT director_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM director
             ORDER BY fullname
         """
@@ -17,7 +17,7 @@ class DirectorModel:
     def get_director_by_id(director_id):
         """Получить режиссёра по ID"""
         sql = """
-            SELECT director_id, fullname, photo, created_at, updated_at
+            SELECT director_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM director
             WHERE director_id = %s
         """
@@ -25,40 +25,42 @@ class DirectorModel:
         return rows[0] if rows else None
 
     @staticmethod
-    def create_director(fullname, photo_path):
+    def create_director(name, lastname, photo_path):
         """Создать нового режиссёра"""
         sql = """
-            INSERT INTO director (fullname, photo)
-            VALUES (%s, %s)
+            INSERT INTO director (name, lastname, photo)
+            VALUES (%s, %s, %s)
             RETURNING director_id
         """
         photo_binary = image_to_binary(photo_path)
-        result = query(sql, [fullname, photo_binary])
+        result = query(sql, [name, lastname, photo_binary])
         return result[0][0] if result else None
 
     @staticmethod
-    def update_director(director_id, fullname, photo_path=None):
+    def update_director(director_id, name, lastname, photo_path=None):
         """Обновить данные режиссёра"""
         if photo_path:
             photo_binary = image_to_binary(photo_path)
             sql = """
                 UPDATE director
-                SET fullname = %s, photo = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, lastname = %s, photo = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE director_id = %s
             """
-            query(sql, [fullname, photo_binary, director_id])
+            query(sql, [name, lastname, photo_binary, director_id])
         else:
             sql = """
                 UPDATE director
-                SET fullname = %s, updated_at = CURRENT_TIMESTAMP
+                SET name = %s, lastname = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE director_id = %s
             """
-            query(sql, [fullname, director_id])
+            query(sql, [name, lastname, director_id])
         return True
 
     @staticmethod
     def delete_director(director_id):
         """Удалить режиссёра"""
+        # Связанные записи в movie_director будут удалены каскадно, если так настроена БД.
+        # Если нет, то нужна предварительная очистка.
         sql = "DELETE FROM director WHERE director_id = %s"
         query(sql, [director_id])
         return True
@@ -67,9 +69,9 @@ class DirectorModel:
     def search_directors(search_text):
         """Поиск режиссёров по имени"""
         sql = """
-            SELECT director_id, fullname, photo, created_at, updated_at
+            SELECT director_id, name || ' ' || lastname AS fullname, photo, created_at, updated_at
             FROM director
-            WHERE fullname ILIKE %s
+            WHERE (name || ' ' || lastname) ILIKE %s
             ORDER BY fullname
         """
         pattern = f"%{search_text}%"

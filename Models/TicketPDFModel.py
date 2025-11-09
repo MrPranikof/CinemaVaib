@@ -1,6 +1,6 @@
 import os
 import tempfile
-from reportlab.lib.pagesizes import A5  # Изменили A6 на A5
+from reportlab.lib.pagesizes import A5
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from reportlab.lib.colors import Color, black, white
@@ -161,7 +161,7 @@ class TicketPDFModel:
         qr_y = y_position - 15 * mm - qr_size
         qr_x = (page_width - qr_size) / 2
         try:
-            qr_data = f"TICKET:{ticket_id}:USER:{user_id}:SESSION:{ticket_info[11]}"
+            qr_data = f"TICKET:{ticket_id}:USER:{user_id}:SESSION:{ticket_info[10]}"
             qr_image = ImageReader(TicketPDFModel.generate_qr_code(qr_data))
             c.drawImage(qr_image, qr_x, qr_y, width=qr_size, height=qr_size)
             c.setFillColor(text_color)
@@ -186,7 +186,7 @@ class TicketPDFModel:
             ticket_info = TicketModel.get_ticket_by_id(ticket_id)
 
             if not ticket_info: raise Exception("Билет не найден")
-            if ticket_info[13] != user_id: raise Exception("Этот билет не принадлежит вам")
+            if ticket_info[12] != user_id: raise Exception("Этот билет не принадлежит вам")
 
             temp_dir = tempfile.gettempdir()
             filename = f"ticket_{ticket_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
@@ -217,7 +217,7 @@ class TicketPDFModel:
             valid_tickets = []
             for ticket_id in ticket_ids:
                 ticket_info = TicketModel.get_ticket_by_id(ticket_id)
-                if ticket_info and ticket_info[13] == user_id:
+                if ticket_info and ticket_info[12] == user_id:
                     valid_tickets.append((ticket_id, ticket_info))
 
             if not valid_tickets:

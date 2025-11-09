@@ -416,7 +416,7 @@ class MovieDialog(QDialog):
         self.director_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
 
         try:
-            directors = query("SELECT director_id, fullname FROM director ORDER BY fullname")
+            directors = query("SELECT director_id, name || ' ' || lastname AS fullname FROM director ORDER BY fullname")
             if directors:
                 for director_id, fullname in directors:
                     item = QListWidgetItem(fullname)
@@ -474,7 +474,7 @@ class MovieDialog(QDialog):
         # ComboBox с актёрами
         actor_combo = QComboBox()
         try:
-            actors = query("SELECT actor_id, fullname FROM actor ORDER BY fullname")
+            actors = query("SELECT actor_id, name || ' ' || lastname AS fullname FROM actor ORDER BY fullname")
             if actors:
                 for actor_id, fullname in actors:
                     actor_combo.addItem(fullname, actor_id)

@@ -82,7 +82,7 @@ class LoginView(QWidget):
 
         if self.remember_checkbox.isChecked():
             settings.setValue("remember_login", True)
-            settings.setValue("user_id", user_id)  # Сохраняем ТОЛЬКО user_id
+            settings.setValue("user_id", user_id)
         else:
             settings.clear()
 

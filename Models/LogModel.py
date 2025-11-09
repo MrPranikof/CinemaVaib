@@ -10,7 +10,7 @@ class LogModel:
         try:
             sql = """
                 INSERT INTO activity_log 
-                (user_id, actor_role, action_type, entity_id, description, timestamp)
+                (user_id, actor_role, action_type, entity_id, description, created_at)
                 VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                 RETURNING log_id
             """
@@ -184,7 +184,7 @@ class LogModel:
         """Получить последние записи лога"""
         sql = """
             SELECT al.log_id, al.user_id, u.login, al.actor_role, al.action_type, 
-                   al.entity_id, al.description, al.timestamp
+                   al.entity_id, al.description, al.created_at
             FROM activity_log al
             LEFT JOIN users u ON al.user_id = u.user_id
             WHERE 1=1
@@ -199,7 +199,7 @@ class LogModel:
             sql += " AND al.action_type = %s"
             params.append(action_type)
 
-        sql += " ORDER BY al.timestamp DESC LIMIT %s"
+        sql += " ORDER BY al.created_at DESC LIMIT %s"
         params.append(limit)
 
         return query(sql, params) or []
@@ -209,10 +209,10 @@ class LogModel:
         """Получить активность пользователя за период"""
         sql = """
             SELECT action_type, COUNT(*) as action_count,
-                   MAX(timestamp) as last_action
+                   MAX(created_at) as last_action
             FROM activity_log
             WHERE user_id = %s 
-            AND timestamp >= CURRENT_DATE - INTERVAL '%s days'
+            AND created_at >= CURRENT_DATE - INTERVAL '%s days'
             GROUP BY action_type
             ORDER BY action_count DESC
         """
@@ -221,7 +221,7 @@ class LogModel:
     @staticmethod
     def cleanup_old_logs(days_to_keep=90):
         """Очистка старых логов"""
-        sql = "DELETE FROM activity_log WHERE timestamp < CURRENT_DATE - INTERVAL '%s days'"
+        sql = "DELETE FROM activity_log WHERE created_at < CURRENT_DATE - INTERVAL '%s days'"
         query(sql, [days_to_keep])
         return True
 

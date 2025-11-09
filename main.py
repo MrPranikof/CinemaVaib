@@ -1,5 +1,6 @@
+import os
 import sys
-from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QSettings, Qt
 from PyQt6.QtGui import QFontDatabase, QIcon
 from PyQt6.QtWidgets import QApplication, QStackedWidget
 from Views.LoginView import LoginView
@@ -13,15 +14,13 @@ class App(QStackedWidget):
         super().__init__()
         self.setWindowIcon(QIcon('images/iconLogo.png'))
         self.setWindowTitle('CinemaVaib')
-        self.setFixedSize(1024, 600)
+        self.resize(1024, 600)
 
         self.current_user_id = None
 
-        # Создаем ТОЛЬКО login view изначально
         self.login = LoginView(self.show_register, self.show_main)
         self.addWidget(self.login)
 
-        # Остальные виды создадим по требованию (lazy loading)
         self.register = None
         self.main = None
 
@@ -41,7 +40,6 @@ class App(QStackedWidget):
         """Показать страницу входа"""
         self.current_user_id = None
 
-        # Пересоздаем login для сброса формы
         if self.login is not None:
             self.removeWidget(self.login)
             self.login.deleteLater()
@@ -51,12 +49,10 @@ class App(QStackedWidget):
         self.setCurrentWidget(self.login)
 
     def show_register(self):
-        """Показать страницу регистрации"""
         if self.register is None:
             self.register = RegisterView(self.show_login)
             self.addWidget(self.register)
         else:
-            # Сбрасываем форму
             self.register.reset()
 
         self.setCurrentWidget(self.register)
@@ -83,6 +79,9 @@ class App(QStackedWidget):
 
 
 def main():
+    if getattr(sys, 'frozen', False):
+        os.chdir(os.path.dirname(sys.executable))
+
     app = QApplication(sys.argv)
     App.apply_style(app)
     win = App()

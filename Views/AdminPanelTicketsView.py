@@ -20,35 +20,46 @@ class AdminPanelTicketsView(QWidget):
         self.revenue_label = None
         self.model = None
 
+        # ✅ Устанавливаем минимальный размер для всего виджета
+        self.setMinimumSize(600, 400)
+
         self.setup_ui()
         self.load_tickets()
 
     def setup_ui(self):
         """Настройка интерфейса"""
-        # Главный layout для всего виджета
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
         scroll = QScrollArea()
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # ✅ Включаем горизонтальную прокрутку при необходимости
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setWidgetResizable(True)  # ✅ Важно!
 
-        # Контейнер для содержимого
         content_widget = QWidget()
+        # ✅ Устанавливаем size policy для content_widget
+        content_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         layout = QVBoxLayout(content_widget)
-        layout.setContentsMargins(20,20,20,20)
+        layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(25)
 
         # Заголовок
         header = QHBoxLayout()
         title = QLabel("🎫 Управление билетами")
         title.setObjectName("TitleLabel")
+        # ✅ Позволяем заголовку расширяться
+        title.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         header.addWidget(title)
         header.addStretch()
 
         self.btn_back = QPushButton("⬅ Назад")
         self.btn_back.setObjectName("BackButton")
-        self.btn_back.setFixedWidth(150)
+        # ✅ Убираем фиксированную ширину, устанавливаем минимальную
+        self.btn_back.setMinimumWidth(100)
+        self.btn_back.setMaximumWidth(200)
         if self.go_back:
             self.btn_back.clicked.connect(self.go_back)
         header.addWidget(self.btn_back)
@@ -60,11 +71,11 @@ class AdminPanelTicketsView(QWidget):
 
         # Вкладки
         self.tabs = QTabWidget()
-        self.tabs.setMinimumHeight(500)
+        # ✅ Устанавливаем минимальную высоту, но позволяем расширяться
+        self.tabs.setMinimumHeight(400)
+        self.tabs.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        # Вкладка всех билетов
         self.create_all_tickets_tab()
-        # Вкладка статистики
         self.create_stats_tab()
 
         layout.addWidget(self.tabs, stretch=1)
@@ -75,14 +86,21 @@ class AdminPanelTicketsView(QWidget):
     def create_stats_section(self, parent_layout):
         """Создать секцию статистики"""
         stats_group = QGroupBox("📊 Статистика продаж")
+        # ✅ Позволяем группе растягиваться
+        stats_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+
         stats_layout = QHBoxLayout(stats_group)
 
         self.stats_label = QLabel()
+        # ✅ Включаем перенос слов
+        self.stats_label.setWordWrap(True)
+        self.stats_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         stats_layout.addWidget(self.stats_label)
 
         stats_layout.addStretch()
 
         btn_refresh = QPushButton("🔄 Обновить")
+        btn_refresh.setMaximumWidth(150)
         btn_refresh.clicked.connect(self.update_stats)
         stats_layout.addWidget(btn_refresh)
 
@@ -92,6 +110,9 @@ class AdminPanelTicketsView(QWidget):
     def create_all_tickets_tab(self):
         """Вкладка со всеми билетами"""
         tab = QWidget()
+        # ✅ Size policy для вкладки
+        tab.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(15, 15, 15, 15)
         layout.setSpacing(20)
@@ -101,11 +122,13 @@ class AdminPanelTicketsView(QWidget):
 
         # Таблица билетов
         self.tickets_view = QTableView()
-        self.tickets_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        self.tickets_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.tickets_view.setAlternatingRowColors(True)
         self.tickets_view.setSortingEnabled(True)
-        self.tickets_view.setMinimumHeight(400)
+
+        # ✅ Настройки адаптивности таблицы
+        self.tickets_view.setMinimumHeight(300)
+        self.tickets_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         layout.addWidget(self.tickets_view, stretch=1)
 
         # Кнопки управления
@@ -113,15 +136,18 @@ class AdminPanelTicketsView(QWidget):
         btns.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding))
 
         self.btn_view_details = QPushButton("👁️ Детали")
+        self.btn_view_details.setMaximumWidth(150)
         self.btn_view_details.clicked.connect(self.view_ticket_details)
         btns.addWidget(self.btn_view_details)
 
         self.btn_cancel_ticket = QPushButton("❌ Отменить билет")
         self.btn_cancel_ticket.setObjectName("LogoutButton")
+        self.btn_cancel_ticket.setMaximumWidth(200)
         self.btn_cancel_ticket.clicked.connect(self.cancel_ticket)
         btns.addWidget(self.btn_cancel_ticket)
 
         self.btn_refresh = QPushButton("🔄 Обновить")
+        self.btn_refresh.setMaximumWidth(150)
         self.btn_refresh.clicked.connect(self.load_tickets)
         btns.addWidget(self.btn_refresh)
 
@@ -133,6 +159,9 @@ class AdminPanelTicketsView(QWidget):
     def create_filters_section(self, parent_layout):
         """Создать секцию фильтров"""
         filter_group = QGroupBox("Фильтры")
+        # ✅ Позволяем группе фильтров адаптироваться
+        filter_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+
         filter_layout = QHBoxLayout(filter_group)
 
         # Фильтр по периоду
@@ -141,7 +170,9 @@ class AdminPanelTicketsView(QWidget):
         self.date_from.setDate(QDate.currentDate().addDays(-30))
         self.date_from.setCalendarPopup(True)
         self.date_from.setDisplayFormat("dd.MM.yyyy")
-        self.date_from.setFixedWidth(120)
+        # ✅ Заменяем фиксированную ширину на минимальную
+        self.date_from.setMinimumWidth(100)
+        self.date_from.setMaximumWidth(150)
         filter_layout.addWidget(self.date_from)
 
         filter_layout.addWidget(QLabel("–"))
@@ -150,7 +181,9 @@ class AdminPanelTicketsView(QWidget):
         self.date_to.setDate(QDate.currentDate())
         self.date_to.setCalendarPopup(True)
         self.date_to.setDisplayFormat("dd.MM.yyyy")
-        self.date_to.setFixedWidth(120)
+        # ✅ Заменяем фиксированную ширину на минимальную
+        self.date_to.setMinimumWidth(100)
+        self.date_to.setMaximumWidth(150)
         filter_layout.addWidget(self.date_to)
 
         # Фильтр по статусу
@@ -159,15 +192,20 @@ class AdminPanelTicketsView(QWidget):
         self.status_filter_combo.addItem("Все", "all")
         self.status_filter_combo.addItem("Активные", "active")
         self.status_filter_combo.addItem("Использованные", "used")
+        # ✅ Адаптивная ширина
+        self.status_filter_combo.setMinimumWidth(120)
+        self.status_filter_combo.setMaximumWidth(200)
         filter_layout.addWidget(self.status_filter_combo)
 
         # Кнопка применения фильтра
         btn_apply = QPushButton("Применить")
+        btn_apply.setMaximumWidth(120)
         btn_apply.clicked.connect(self.apply_filters)
         filter_layout.addWidget(btn_apply)
 
         # Кнопка сброса фильтров
         btn_reset = QPushButton("Сбросить")
+        btn_reset.setMaximumWidth(120)
         btn_reset.clicked.connect(self.reset_filters)
         filter_layout.addWidget(btn_reset)
 
@@ -177,6 +215,9 @@ class AdminPanelTicketsView(QWidget):
     def create_stats_tab(self):
         """Вкладка со статистикой продаж"""
         tab = QWidget()
+        # ✅ Size policy для вкладки
+        tab.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(15, 15, 15, 15)
         layout.setSpacing(20)
@@ -184,13 +225,25 @@ class AdminPanelTicketsView(QWidget):
         # Заголовок
         header = QLabel("📈 Ежедневная выручка (последние 30 дней)")
         header.setStyleSheet("font-size: 16px; font-weight: bold;")
+        header.setWordWrap(True)  # ✅ Перенос слов
         layout.addWidget(header)
 
         # Таблица выручки
         self.revenue_label = QLabel()
         self.revenue_label.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.revenue_label.setWordWrap(True)
-        layout.addWidget(self.revenue_label, stretch=1)
+        # ✅ Size policy для таблицы выручки
+        self.revenue_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        # ✅ Включаем прокрутку для HTML-таблицы
+        self.revenue_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+
+        # Оборачиваем в ScrollArea для больших таблиц
+        revenue_scroll = QScrollArea()
+        revenue_scroll.setWidget(self.revenue_label)
+        revenue_scroll.setWidgetResizable(True)
+        revenue_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+
+        layout.addWidget(revenue_scroll, stretch=1)
 
         # Загружаем данные о выручке
         self.load_revenue_data()
@@ -202,12 +255,13 @@ class AdminPanelTicketsView(QWidget):
         try:
             daily_revenue = TicketModel.get_daily_revenue(30)
             if daily_revenue:
+                # ✅ Адаптивная HTML-таблица
                 revenue_text = """
-                <table style='width: 100%; border-collapse: collapse;'>
+                <table style='width: 100%; border-collapse: collapse; table-layout: auto;'>
                     <tr style='background-color: #2A2C32;'>
-                        <th style='padding: 10px; text-align: left; border: 1px solid #3A3C42;'>Дата</th>
-                        <th style='padding: 10px; text-align: center; border: 1px solid #3A3C42;'>Билетов</th>
-                        <th style='padding: 10px; text-align: right; border: 1px solid #3A3C42;'>Выручка</th>
+                        <th style='padding: 10px; text-align: left; border: 1px solid #3A3C42; min-width: 100px;'>Дата</th>
+                        <th style='padding: 10px; text-align: center; border: 1px solid #3A3C42; min-width: 80px;'>Билетов</th>
+                        <th style='padding: 10px; text-align: right; border: 1px solid #3A3C42; min-width: 120px;'>Выручка</th>
                     </tr>
                 """
 
@@ -260,11 +314,6 @@ class AdminPanelTicketsView(QWidget):
 
             self.model = datagrid_model(sql)
             self.tickets_view.setModel(self.model)
-
-            # Настройка заголовков
-            header = self.tickets_view.horizontalHeader()
-            header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-            header.setStretchLastSection(True)
 
             self.update_stats()
 
@@ -372,7 +421,6 @@ class AdminPanelTicketsView(QWidget):
             date_to = self.date_to.date().toString("yyyy-MM-dd")
             status = self.status_filter_combo.currentData()
 
-            # Базовый SQL запрос
             sql = f"""
                 SELECT 
                     t.ticket_id as "ID",
@@ -397,7 +445,6 @@ class AdminPanelTicketsView(QWidget):
                 WHERE DATE(t.purchase_date) BETWEEN '{date_from}' AND '{date_to}'
             """
 
-            # Добавляем фильтр по статусу
             if status == "active":
                 sql += " AND s.session_time > NOW()"
             elif status == "used":
@@ -408,11 +455,7 @@ class AdminPanelTicketsView(QWidget):
             self.model = datagrid_model(sql)
             self.tickets_view.setModel(self.model)
 
-            header = self.tickets_view.horizontalHeader()
-            header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
-            header.setStretchLastSection(True)
 
-            # Показываем количество найденных билетов
             row_count = self.model.rowCount()
             QMessageBox.information(
                 self,

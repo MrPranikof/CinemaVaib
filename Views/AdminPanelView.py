@@ -85,7 +85,7 @@ class AdminPanelView(QWidget):
         grid_layout.addWidget(self.btn_genres, 2, 2)
 
         # Четвертый ряд
-        self.btn_logs = QPushButton("📊 Логи")
+        self.btn_logs = QPushButton("📊 Журнал событий")
         self.btn_logs.setFixedSize(200, 45)
         self.btn_logs.clicked.connect(self.open_logs_view)
         grid_layout.addWidget(self.btn_logs, 3, 1)

@@ -111,10 +111,10 @@ class AdminPanelLogsView(QWidget):
                     al.action_type as "Тип действия",
                     al.entity_id as "ID сущности",
                     al.description as "Описание",
-                    TO_CHAR(al.timestamp, 'DD.MM.YYYY HH24:MI:SS') as "Время"
+                    TO_CHAR(al.created_at, 'DD.MM.YYYY HH24:MI:SS') as "Время"
                 FROM activity_log al
                 LEFT JOIN users u ON al.user_id = u.user_id
-                ORDER BY al.timestamp DESC
+                ORDER BY al.created_at DESC
                 LIMIT {limit}
             """
 
@@ -140,7 +140,7 @@ class AdminPanelLogsView(QWidget):
                     al.action_type as "Тип действия",
                     al.entity_id as "ID сущности",
                     al.description as "Описание",
-                    TO_CHAR(al.timestamp, 'DD.MM.YYYY HH24:MI:SS') as "Время"
+                    TO_CHAR(al.created_at, 'DD.MM.YYYY HH24:MI:SS') as "Время"
                 FROM activity_log al
                 LEFT JOIN users u ON al.user_id = u.user_id
                 WHERE 1=1
@@ -150,7 +150,7 @@ class AdminPanelLogsView(QWidget):
             if action_filter != "all":
                 sql += f" AND al.action_type LIKE '{action_filter}%'"
 
-            sql += f" ORDER BY al.timestamp DESC LIMIT {limit}"
+            sql += f" ORDER BY al.created_at DESC LIMIT {limit}"
 
             self.model = datagrid_model(sql)
             self.logs_view.setModel(self.model)

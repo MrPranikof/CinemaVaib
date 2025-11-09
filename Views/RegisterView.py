@@ -105,10 +105,17 @@ class RegisterView(QWidget):
             self.try_register()
 
     def reset(self):
-        """Сброс формы регистрации"""
         self.loginInput.clear()
         self.emailInput.clear()
         self.passwordInput.clear()
         self.status.clear()
         if self.show_pass_btn.isChecked():
             self.toggle_password()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        try:
+            from core.animation import AnimationHelper
+            AnimationHelper.fade_in(self, 200)
+        except:
+            pass

@@ -53,9 +53,6 @@ class MovieModel:
             print(f"❌ Ошибка в search_movies: {e}")
             return []
 
-
-
-
     @staticmethod
     def get_movies_by_genre(genre_id):
         """Получить фильмы по жанру - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
@@ -97,7 +94,7 @@ class MovieModel:
     def get_movie_directors(movie_id):
         """Получить режиссёров фильма"""
         sql = """
-            SELECT d.director_id, d.fullname, d.photo
+            SELECT d.director_id, d.name || ' ' || d.lastname AS fullname, d.photo
             FROM director d
             JOIN movie_director md ON d.director_id = md.director_id
             WHERE md.movie_id = %s
@@ -108,7 +105,7 @@ class MovieModel:
     def get_movie_actors(movie_id):
         """Получить актёров фильма с ролями"""
         sql = """
-            SELECT a.actor_id, a.fullname, a.photo, ma.role
+            SELECT a.actor_id, a.name || ' ' || a.lastname AS fullname, a.photo, ma.role
             FROM actor a
             JOIN movie_actor ma ON a.actor_id = ma.actor_id
             WHERE ma.movie_id = %s

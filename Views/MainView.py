@@ -23,14 +23,14 @@ class MainView(QWidget):
             return
 
         # Header
-        self.header = QWidget()
+        self.header = QWidget(self)
         self.header.setObjectName("HeaderBar")
 
         h_header = QHBoxLayout(self.header)
         h_header.setContentsMargins(20, 10, 20, 10)
         h_header.setSpacing(15)
 
-        self.logo_label = QLabel()
+        self.logo_label = QLabel(self.header)
         pix = QPixmap("images/headerLogo.png")
         pix = pix.scaledToHeight(38, Qt.TransformationMode.SmoothTransformation)
         self.logo_label.setPixmap(pix)
@@ -38,19 +38,19 @@ class MainView(QWidget):
         self.logo_label.setObjectName("HeaderLogo")
         self.logo_label.mousePressEvent = self.show_main_page
 
-        self.btn_watchlist = QPushButton("❤️\nИзбранное")
+        self.btn_watchlist = QPushButton("❤️\nИзбранное", parent=self.header)
         self.btn_watchlist.setObjectName("HeaderButton")
         self.btn_watchlist.clicked.connect(self.show_watchlist_page)
 
-        self.btn_tickets = QPushButton("🎟️\nМои билеты")
+        self.btn_tickets = QPushButton("🎟️\nМои билеты", parent=self.header)
         self.btn_tickets.setObjectName("HeaderButton")
         self.btn_tickets.clicked.connect(self.show_my_tickets)
 
-        self.btn_profile = QPushButton("👨‍💼\nПрофиль")
+        self.btn_profile = QPushButton("👨‍💼\nПрофиль", parent=self.header)
         self.btn_profile.setObjectName("HeaderButton")
         self.btn_profile.clicked.connect(self.show_profile_page)
 
-        self.adminBtn = QPushButton("🛠\nАдмин-панель")
+        self.adminBtn = QPushButton("🛠\nАдмин-панель", parent=self.header)
         self.adminBtn.setObjectName("HeaderButton")
         self.adminBtn.setVisible(self.user_data['role_id'] == 2)
         self.adminBtn.clicked.connect(self.show_admin_page)
@@ -63,10 +63,9 @@ class MainView(QWidget):
         h_header.addWidget(self.adminBtn)
 
         # Content area
-        self.stack = QStackedWidget()
+        self.stack = QStackedWidget(self)
         self.stack.setObjectName("ContentArea")
 
-        # ВСЕ страницы создаются по требованию (lazy loading)
         self.page_main = None
         self.page_profile = None
         self.page_admin_panel = None
@@ -82,14 +81,14 @@ class MainView(QWidget):
         self.page_admin_panel_logs = None
 
         # Footer
-        self.footer = QWidget()
+        self.footer = QWidget(self)
         self.footer.setObjectName("FooterBar")
 
         h_footer = QHBoxLayout(self.footer)
         h_footer.setContentsMargins(20, 8, 20, 8)
         h_footer.setSpacing(10)
 
-        self.footer_text = QLabel("© 2025 CinemaVaib — Все права защищены, v1.1.0")
+        self.footer_text = QLabel("© 2025 CinemaVaib — Все права защищены, v1.2.0")
         self.footer_text.setObjectName("FooterText")
         h_footer.addStretch()
         h_footer.addWidget(self.footer_text)
@@ -112,8 +111,7 @@ class MainView(QWidget):
         fresh_data = UserModel.get_user_data(self.user_id)
 
         if not fresh_data:
-            # Если пользователь удален из БД
-            page = QWidget()
+            page = QWidget(self)
             layout = QVBoxLayout(page)
             layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             error_label = QLabel("⚠️ Ошибка загрузки данных пользователя")
@@ -121,7 +119,7 @@ class MainView(QWidget):
             layout.addWidget(error_label)
             return page
 
-        page = QWidget()
+        page = QWidget(self)
         main_layout = QVBoxLayout(page)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)

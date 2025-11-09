@@ -13,7 +13,6 @@ from Views.Components.SeatSelectionView import SeatSelectionView
 
 
 class SessionCard(QFrame):
-    """Карточка сеанса в стиле приложения"""
     book_clicked = pyqtSignal(int, str, str)
 
     def __init__(self, session_data, parent=None):
@@ -65,7 +64,7 @@ class SessionCard(QFrame):
         bottom_layout = QHBoxLayout()
         bottom_layout.setSpacing(15)
 
-        price_label = QLabel(f"{int(self.price)} ₽")
+        price_label = QLabel(f"От {int(self.price)} ₽")
         price_label.setStyleSheet("""
             color: #00A8E8;
             font-weight: 700;

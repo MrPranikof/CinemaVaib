@@ -1,3 +1,4 @@
+from Models.LogModel import LogModel
 from core.database import query, image_to_binary
 
 
@@ -25,8 +26,8 @@ class ActorModel:
         return rows[0] if rows else None
 
     @staticmethod
-    def create_actor(name, lastname, photo_path):
-        """Создать нового актёра"""
+    def create_actor(name, lastname, photo_path, user_id=None):
+        """Создать нового актёра с логированием"""
         sql = """
             INSERT INTO actor (name, lastname, photo)
             VALUES (%s, %s, %s)
@@ -34,11 +35,22 @@ class ActorModel:
         """
         photo_binary = image_to_binary(photo_path)
         result = query(sql, [name, lastname, photo_binary])
-        return result[0][0] if result else None
+
+        if result:
+            actor_id = result[0][0]
+            LogModel.log_admin_action(
+                user_id,
+                "ACTOR_CREATE",
+                "Actor",
+                actor_id,
+                f"Создан актер: {name} {lastname}"
+            )
+            return actor_id
+        return None
 
     @staticmethod
-    def update_actor(actor_id, name, lastname, photo_path=None):
-        """Обновить данные актёра"""
+    def update_actor(actor_id, name, lastname, photo_path=None, user_id=None):
+        """Обновить данные актёра с логированием"""
         if photo_path:
             photo_binary = image_to_binary(photo_path)
             sql = """
@@ -54,13 +66,32 @@ class ActorModel:
                 WHERE actor_id = %s
             """
             query(sql, [name, lastname, actor_id])
+
+        LogModel.log_admin_action(
+            user_id,
+            "ACTOR_UPDATE",
+            "Actor",
+            actor_id,
+            f"Обновлен актер: {name} {lastname} (ID: {actor_id})"
+        )
         return True
 
     @staticmethod
-    def delete_actor(actor_id):
-        """Удалить актёра"""
+    def delete_actor(actor_id, user_id=None):
+        # Сначала получаем данные для лога
+        actor_data = ActorModel.get_actor_by_id(actor_id)
+        actor_name = f"{actor_data[1]} {actor_data[2]}" if actor_data else "Unknown"
+
         sql = "DELETE FROM actor WHERE actor_id = %s"
         query(sql, [actor_id])
+
+        LogModel.log_admin_action(
+            user_id,
+            "ACTOR_DELETE",
+            "Actor",
+            actor_id,
+            f"Удален актер: {actor_name} (ID: {actor_id})"
+        )
         return True
 
     @staticmethod

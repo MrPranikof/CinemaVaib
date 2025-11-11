@@ -5,7 +5,6 @@ from core.database import query
 class MovieModel:
     @staticmethod
     def get_all_movies(limit=None, offset=0):
-        """Получить все фильмы с ограничением - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
         try:
             sql = """
                 SELECT movie_id, title, description, movie_image, 
@@ -17,15 +16,14 @@ class MovieModel:
                 sql += f" LIMIT {limit} OFFSET {offset}"
 
             rows = query(sql)
-            return rows if rows else []  # Всегда возвращаем список, даже пустой
+            return rows if rows else []
 
         except Exception as e:
             print(f"❌ Ошибка в get_all_movies: {e}")
-            return []  # Возвращаем пустой список при ошибке
+            return []
 
     @staticmethod
     def get_movie_by_id(movie_id):
-        """Получить фильм по ID"""
         sql = """
             SELECT movie_id, title, description, movie_image, 
                    base_price, rating, created_at, updated_at
@@ -37,11 +35,10 @@ class MovieModel:
 
     @staticmethod
     def search_movies(search_text):
-        """Поиск фильмов по названию - ИСПРАВЛЕННАЯ ВЕРСИЯ"""
         try:
             sql = """
                 SELECT movie_id, title, description, movie_image, 
-                       base_price, rating, created_at, updated_at
+                       rating, created_at, updated_at
                 FROM movies
                 WHERE title ILIKE %s OR description ILIKE %s
                 ORDER BY rating DESC, created_at DESC
@@ -50,7 +47,7 @@ class MovieModel:
             rows = query(sql, [pattern, pattern])
             return rows if rows else []
         except Exception as e:
-            print(f"❌ Ошибка в search_movies: {e}")
+            print(f"Ошибка в search_movies: {e}")
             return []
 
     @staticmethod

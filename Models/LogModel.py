@@ -1,9 +1,7 @@
 from Models.UserModel import UserModel
 from core.database import query
 
-
 class LogModel:
-
     @staticmethod
     def log_action(user_id, actor_role, action_type, entity_id, description,
                    action_result="SUCCESS", error_message=None):
@@ -203,20 +201,6 @@ class LogModel:
         params.append(limit)
 
         return query(sql, params) or []
-
-    @staticmethod
-    def get_user_activity(user_id, days=30):
-        """Получить активность пользователя за период"""
-        sql = """
-            SELECT action_type, COUNT(*) as action_count,
-                   MAX(created_at) as last_action
-            FROM activity_log
-            WHERE user_id = %s 
-            AND created_at >= CURRENT_DATE - INTERVAL '%s days'
-            GROUP BY action_type
-            ORDER BY action_count DESC
-        """
-        return query(sql, [user_id, days]) or []
 
     @staticmethod
     def cleanup_old_logs(days_to_keep=90):

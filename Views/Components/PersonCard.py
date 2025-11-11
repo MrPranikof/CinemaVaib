@@ -5,8 +5,6 @@ from PyQt6.QtGui import QPixmap
 
 
 class PersonCard(QFrame):
-    """Прямоугольная карточка для отображения актера/режиссера в стиле фильмов"""
-
     def __init__(self, person_data, is_director=False, parent=None):
         super().__init__(parent)
         self.person_id = person_data[0]

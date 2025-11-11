@@ -4,7 +4,6 @@ from core.database import query
 class TicketModel:
     @staticmethod
     def create_ticket(session_id, user_id, seat_id):
-        """Создать билет"""
         sql = """
             INSERT INTO ticket (session_id, user_id, seat_id)
             VALUES (%s, %s, %s)
@@ -14,7 +13,6 @@ class TicketModel:
 
         if result:
             ticket_id = result[0][0]
-            # Логируем покупку
             LogModel.log_ticket_purchase(user_id, ticket_id, session_id, 1)
             return ticket_id
         return None
@@ -38,7 +36,6 @@ class TicketModel:
 
     @staticmethod
     def get_available_seats(session_id):
-        """Получить доступные места для сеанса"""
         try:
             sql = """
                 SELECT s.seat_id, s.row_number, s.seat_number, s.seat_extra_price,
@@ -73,7 +70,6 @@ class TicketModel:
 
     @staticmethod
     def is_seat_available(session_id, seat_id):
-        """Проверить доступность места"""
         sql = """
             SELECT COUNT(*) 
             FROM ticket 

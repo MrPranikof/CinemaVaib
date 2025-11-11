@@ -2,12 +2,10 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QGridLayout, QFrame, QMessageBox,
                              QScrollArea)
 from PyQt6.QtCore import Qt, pyqtSignal, QTimer
-from PyQt6.QtGui import QFont
 from Models.TicketModel import TicketModel
 
 
 class SeatWidget(QFrame):
-    """Виджет одного места в зале"""
     seat_clicked = pyqtSignal(int, int, float)  # seat_id, seat_number, price
 
     def __init__(self, seat_data, is_available=True, parent=None):

@@ -1,11 +1,8 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QTableView, QSizePolicy, QMessageBox, QSpacerItem,
-    QGroupBox, QComboBox, QSpinBox, QProgressBar, QFileDialog,
-    QScrollArea  # Добавляем QScrollArea
+    QMessageBox, QGroupBox, QSpinBox, QProgressBar, QFileDialog, QScrollArea
 )
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from core.database import datagrid_model
 from Models.ReportsModel import ReportsModel
 import os
 

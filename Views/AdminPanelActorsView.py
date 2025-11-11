@@ -137,7 +137,7 @@ class AdminPanelActorsView(QWidget):
                 return
 
             try:
-                ActorModel.create_actor(name, lastname, photo_path)
+                ActorModel.create_actor(name, lastname, photo_path, self.user_id)  # ← добавили user_id
                 QMessageBox.information(self, "Успех", f"Актёр '{name} {lastname}' добавлен")
                 self.refresh_table()
             except Exception as e:
@@ -161,7 +161,7 @@ class AdminPanelActorsView(QWidget):
                 return
 
             try:
-                ActorModel.update_actor(actor['actor_id'], name, lastname, photo_path)
+                ActorModel.update_actor(actor['actor_id'], name, lastname, photo_path, self.user_id)  # ← user_id
                 QMessageBox.information(self, "Успех", f"Актёр '{name} {lastname}' обновлён")
                 self.refresh_table()
             except Exception as e:
@@ -184,7 +184,7 @@ class AdminPanelActorsView(QWidget):
 
         if confirm == QMessageBox.StandardButton.Yes:
             try:
-                ActorModel.delete_actor(actor['actor_id'])
+                ActorModel.delete_actor(actor['actor_id'], self.user_id)  # ← user_id
                 QMessageBox.information(self, "Успех", f"Актёр '{actor['name']} {actor['lastname']}' удалён")
                 self.refresh_table()
             except Exception as e:

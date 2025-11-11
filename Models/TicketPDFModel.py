@@ -10,8 +10,6 @@ from reportlab.lib.utils import ImageReader
 from datetime import datetime
 import qrcode
 from io import BytesIO
-
-# Импортируем ваши модели
 from Models.LogModel import LogModel
 from Models.TicketModel import TicketModel
 
